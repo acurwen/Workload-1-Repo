@@ -1,6 +1,6 @@
 ## Purpose of Workload
 
-The purpose of this workload was to deploy a bank application using Elastic Beanstalk. I completed this workload twice and on the second round, improved my understanding of what these steps do and mean and was able to take better screenshots for documentation. I also worked with many classmates on troubleshooting the 502 error and increasing our knowledge about application deployment using Elastic Beanstalk environments.
+The purpose of this workload was to deploy a retail bank application using Elastic Beanstalk. I completed this workload twice and on the second round, improved my understanding of how we went about deploying the application and was also able to take better screenshots for documentation. I also worked with many classmates on troubleshooting the 502 error.
 
 
 ## Steps Taken & Why
@@ -19,6 +19,8 @@ Cloning the Kura repository into my own repository ensured that I had a local co
         5. **git branch -M main** - setting the branch to main
         6. **git push -u origin main** - pushing the main branch to the remote repository in git to set up tracking in the remote branch
 
+
+
 2. **Created an EC2**
 
 We are creating this instance to host Jenkins on, which we will install next. I created and launched a new EC2 Instance called “EC2 for Hosting Bank Application” following the [instructions](https://github.com/kura-labs-org/AWS-EC2-Quick-Start-Guide/blob/main/AWS%20EC2%20Quick%20Start%20Guide.pdf). I also made one security group with security rules that included SSH (Port 22), HTTP (Port 80) and Jenkins (Port 8080), and gave it a helpful name for me to remember what rules it had: "SSH/HTTP/CustomTCP for Jenkins - Security Group".
@@ -28,11 +30,12 @@ We are creating this instance to host Jenkins on, which we will install next. I 
 
 3. **Installed Jenkins onto the EC2**
 
-We installed Jenkins onto our EC2 instance to give Jenkins access to our application code.
+We install Jenkins onto our EC2 instance to give Jenkins access to our application code.
 
-Connected to new EC2 instance (EC2 for Hosting Bank Application) and installed Jenkins. Installation was successful.
+I connected to my new EC2 instance (EC2 for Hosting Bank Application) and installed Jenkins per the instructions. Installation was successful.
 
 ![image](https://github.com/user-attachments/assets/58ac7dba-61c4-4134-9874-27889d239e11)
+
 
 4. **Created a first admin user account on Jenkins**
 
@@ -44,6 +47,7 @@ I used the IP address for my EC2 instance (3.88.60.42) and the port for Jenkins 
 
 The Jenkins page prompted me for the user admin password that I could find in my EC2 instance. In the instance I ran sudo cat /var/lib/jenkins/secrets/initialAdminPassword and located my password. Then I created an account.
 
+
 5. **Created a Multi-Branch pipeline in Jenkins**
 
 Created a pipeline for each branch in my git repository (however, we only have and are focusing on 'main' branch). This pipeline is where Jenkins will handle building, testing, and deploying our application in that main branch and others if we had any.
@@ -52,7 +56,8 @@ Named the multi-branch pipeline “MultiBranch Pipeline for Bank Application”,
 
 6. **Connected GitHub repository to Jenkins**
 
-I connected Jenkins to my GitHub repository by submitting the [URL](https://github.com/acurwen/Workload-1-Repo.git) of my “Workload-1-Repo” repository from GitHub and the URL was validated!
+Here we are providing a source of code (Github repo code) to be tested.
+I connected Jenkins to my GitHub repository by submitting the [URL](https://github.com/acurwen/Workload-1-Repo.git) of my “Workload-1-Repo” repository from GitHub and the URL was validated! 
 
 ![image](https://github.com/user-attachments/assets/8064daa4-3f00-4864-a475-8c75a8bbed59)
 
@@ -61,9 +66,11 @@ I connected Jenkins to my GitHub repository by submitting the [URL](https://gith
 
 While creating the build configuration, I ensured the "Build Configuration" section said "Mode: by Jenkinsfile" and "Script Path: Jenkinsfile”. I then saved the build which triggered an automatic start. The build completed successfully.
 
-The steps of the build were cloning the git repository, building and testing out the code. Per the log, the 'main' branch was checked, which had the Jenkinsfile present, and because all parameters were met, the build was successful.
+The steps of the build were cloning the repository, building and testing out the code. Per the log, the 'main' branch was checked, which had the Jenkinsfile present, and because all parameters were met, the build was successful.
 
 ![Screenshot 2024-08-01 003530](https://github.com/user-attachments/assets/1055c30b-22f0-4863-8d45-299e0b3a7f95)
+
+
 
 8. **Created Environment in Elastic Beanstalk**
 
@@ -88,7 +95,7 @@ Received message that the evironment was successfully launched.
 ![image](https://github.com/user-attachments/assets/f648a388-087d-4524-be20-6b2079cba70f)
 
 
-Launch was a success!
+Success!
 ![image](https://github.com/user-attachments/assets/e6ca1bea-6574-4e62-8857-88a91a097ad4)
 
 
@@ -131,16 +138,16 @@ At first, I had trouble accessing my logs because nothing showed up in that 'Log
 At first, I looked at the very last lines that said:
 [error] 2763#2763: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 104.28.236.175, server: , request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "retailbanking-env.eba-c92mtjdb.us-east-1.elasticbeanstalk.com"
 
-Last lines of code:
+Last lines of log page:
 ![image](https://github.com/user-attachments/assets/7d55b21c-88a4-4011-b2fc-74643003dda5)
 
 Because this line stated that a connection was refused while connecting to upstream, which matched what Google said about the nginx error, I thought I was having a port issue that was blocking a connection.
 
-I tried looking at the config files within my EC2 instance to see which ports were being listened to because I learned your port configuration would be in those files. I scanned the conf.d file and saw that port 443 was being "listened at" and thought that was a clue. I went back to my Elastic Beanstalk environment and looked at the environment configuration review page and reviewed the EC2 security groups. I thought maybe I needed to create a new security group that included a rule for Port 443, so I created and added in a new one to the environment configurations, but that wasn’t the issue. :P 
+I tried looking at the config files within my instance to see which ports were being listened to because I learned from classmates that the port configuration would be in those files. I scanned the conf.d file and saw that port 443 was being "listened at" and thought that was a clue. I went back to my Elastic Beanstalk environment and looked at the environment configuration review page and reviewed the EC2 security groups. I thought maybe I needed to create a new security group that included a rule for Port 443, so I created and added in a new one to the environment configurations, but that wasn’t the issue. :P 
 
 But I did learn that when you make any changes to your environment, Elastic Beanstalk will terminate the existing instance and hurry to make a new one.
 
-I also tried locating my nginx files within my instance, but looked too long in the wrong instance and couldn't find them. 
+I also tried locating my nginx files within my instance for a clue, but ended up looking in te wrong instance for too long and couldn't find them. 
 
 Going back to the logs, I kept scanning to where I kept seeing ‘ERROR’. I noticed three processes that would start and stop due to an error and they were all followed by the same line: `ModuleNotFoundError: No module named 'application'`
 
@@ -151,6 +158,7 @@ The only place I remember seeing the word "application" was in the repository fi
 
 The issue was that I downloaded the zip file directly from GitHub which included a parent directory. The application couldn’t be deployed because the right files couldn’t be reached/read. 
 
+Uploading the zipfile that includes the parent directory:
 ![image](https://github.com/user-attachments/assets/47567b9a-788e-419d-a22d-11646f918a56)
 
 I fixed this by rezipping only the application sub files together, excluding the parent folder. Then I reuploaded my edited zip file into my application environment on Elastic Beanstalk and the application ran successfully!
@@ -171,7 +179,7 @@ What are the benefits of using managed services for cloud infrastructure?
 
 What are some issues that a retail bank would face choosing this method of deployment and how would you address/resolve them?
 
-1. Customers not having the right PORT open; utilizing commonly used ports would help
+1. Customers not having the right PORT open to reach the site; utilizing commonly used ports would help
 2. Bank information is sensitive so ensuring access is secure and readily available is key, so automating any task needed to ensure the application is up and running would be helpful
 
 What are other disadvantages of using elastic beanstalk or similar managed services for deploying applications?
@@ -179,6 +187,7 @@ What are other disadvantages of using elastic beanstalk or similar managed servi
 
 ## Conclusion
 
-I had a lot of fun doing this project. I noticed that working through documentation helps me understand my work better and that it’d probably be helpful to start documentation immediately as I start a project. Working on this workload alongside the RBAC activity helped me become more comfortable with writing commands and scripts in Bash, and also demonstrated how tough handling main branch + elective branch will be. I also feel closer to my classmates simply because of all the time we spent together in the study room stressing and working together. Thinking through things with each other really helped me complete this project. So big shoutout to Jordan, Jon, Kaia, Ke and Jeremy!!
+I had a lot of fun doing this project. I noticed that working through documentation helps me understand my work better and that it’d probably be helpful to start documentation immediately as I start a project. Working on this workload alongside the RBAC activity helped me become more comfortable with writing commands and scripts in Bash, and also demonstrated how tough handling main branch + elective branch will be. I also feel closer to my classmates simply because of all the time we spent together in the study room stressing and working together. Thinking through things with each other really helped me complete this project. Big shoutout to Jordan, Jon, Kaia, Ke and Jeremy!
+
 
 ----------------------------------------------------------------
