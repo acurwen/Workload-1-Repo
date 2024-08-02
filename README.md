@@ -15,20 +15,20 @@ Cloning the Kura repository into my own repository ensured that I had a local co
         1. **git init** - Initialized a new repository within my instance called /home/ubuntu/bankapp
         2.  **git pull [kura_repo_URL]** - pulled in the repository I wanted to clone 
         3. created a new repository in my GitHub called “[Workload-1-Repo](https://github.com/acurwen/Workload-1-Repo)”
-        4. **git remote add origin [Workload-1-Repo URL]** - adding my new repository in Git called “origin”
+        4. **git remote add origin [Workload-1-Repo URL]** - adding my new repository in git called “origin”
         5. **git branch -M main** - setting the branch to main
         6. **git push -u origin main** - pushing the main branch to the remote repository in git to set up tracking in the remote branch
 
 2. **Created an EC2**
 
-We are creating this instance to host Jenkins on, which we will install next. I created and launched a new EC2 Instance called “EC2 for Hosting Bank Application” following the [instructions](https://github.com/kura-labs-org/AWS-EC2-Quick-Start-Guide/blob/main/AWS%20EC2%20Quick%20Start%20Guide.pdf). I also made one security group with rules that included SSH (Port 22), HTTP (Port 80) and Jenkins (Port 8080) and gave it a helpful name for me to remember what rules it had: "SSH/HTTP/CustomTCP for Jenkins Security Group".
+We are creating this instance to host Jenkins on, which we will install next. I created and launched a new EC2 Instance called “EC2 for Hosting Bank Application” following the [instructions](https://github.com/kura-labs-org/AWS-EC2-Quick-Start-Guide/blob/main/AWS%20EC2%20Quick%20Start%20Guide.pdf). I also made one security group with security rules that included SSH (Port 22), HTTP (Port 80) and Jenkins (Port 8080), and gave it a helpful name for me to remember what rules it had: "SSH/HTTP/CustomTCP for Jenkins - Security Group".
 
 ![image](https://github.com/user-attachments/assets/71ef6a60-387a-4684-88d9-1730e2a223cf)
 
 
 3. **Installed Jenkins onto the EC2**
 
-We installed Jenkins onto our EC2 instance to help with CI/CD and help automate our code that we have added to our git repository.
+We installed Jenkins onto our EC2 instance to give Jenkins access to our application code.
 
 Connected to new EC2 instance (EC2 for Hosting Bank Application) and installed Jenkins. Installation was successful.
 
@@ -36,21 +36,19 @@ Connected to new EC2 instance (EC2 for Hosting Bank Application) and installed J
 
 4. **Created a first admin user account on Jenkins**
 
-Created a first admin user on Jenkins so that we could have access to Jenkins tools via their web interface, specifically creating a multi-branch pipeline.
+Created a first admin user on Jenkins so that we could have access to Jenkins tools via their web interface, specifically creating a multi-branch pipeline and configuring a build.
 
 I used the IP address for my EC2 instance (3.88.60.42) and the port for Jenkins (8080) to find the log in page. 3.88.60.42:8080 successfully took me to the ‘create a user’ Jenkins page.
 
 ![image](https://github.com/user-attachments/assets/7735c816-0d7c-49e4-901d-e82665d769a2)
 
-The Jenkins page prompted me for the user admin password that I could find in my EC2 instance. In the instance I ran sudo cat /var/lib/jenkins/secrets/initialAdminPassword and located my password: c031d3069c35421dbfb54fac8c150781
-
-Then I created an account.
+The Jenkins page prompted me for the user admin password that I could find in my EC2 instance. In the instance I ran sudo cat /var/lib/jenkins/secrets/initialAdminPassword and located my password. Then I created an account.
 
 5. **Created a Multi-Branch pipeline in Jenkins**
 
-Created a pipeline for each branch in my git repository (however, we only have and are focusing on 'main' branch). This pipeline is where Jenkins handles building, testing, and deploying our application in that main branch and others if we had any.
+Created a pipeline for each branch in my git repository (however, we only have and are focusing on 'main' branch). This pipeline is where Jenkins will handle building, testing, and deploying our application in that main branch and others if we had any.
 
-Named the multi-branch pipeline “MultiBranch Pipeline for Bank Application”, and sed my GitHub username and personal access token (pulled and saved from GitHub) as a password.
+Named the multi-branch pipeline “MultiBranch Pipeline for Bank Application”, and used my GitHub username and personal access token (pulled and saved from GitHub) as a password.
 
 6. **Connected GitHub repository to Jenkins**
 
@@ -69,9 +67,9 @@ The steps of the build were cloning the git repository, building and testing out
 
 8. **Created Environment in Elastic Beanstalk**
 
-I created this environment to host our banking application on. I named the environment "Retail Banking".
+I created this environment to host our banking application. I named the environment "Retail Banking".
 
-First, I created my “IAM” service roles: aws-elasticbeanstalk-service-role and Elastic-EC2. These roles help grant permissions that are needed for the environment to host and manage the bank application.
+First, I created my “IAM” service roles: aws-elasticbeanstalk-service-role and Elastic-EC2. These roles help grant permissions that are needed for the environment to host and manage the bank application correctly.
 
 *I also added in my key pair, but I don't think that was needed. I believe doing this requires that my public key pair shown below and my private one would be needed to access the application site.
 
@@ -95,8 +93,8 @@ Launch was a success!
 
 
 ## System Design Diagram
-
-
+![Workload 1 - Retail Bank App drawio](https://github.com/user-attachments/assets/844139cd-72ca-416d-8e5a-befd5444d7cf)
+Diagraming this project helped me a lot in terms of understanding the 'why' behind the instructions.
 
 ## Issues & Troubleshooting
 
@@ -106,13 +104,13 @@ Initially I was confused on how to log into Jenkins — I didn’t quite know wh
 
 In my first iteration of this project, I created an account in Jenkins, but didn’t save my password. When I needed to log in again to take screenshots or understand the stages of the build, I was unable to (there is no recover password option.)  I even searched on Google for different Jenkins pages, found one and tried both recovering my account there and creating a new account. However, I realized I was on a discussions/discord-like Jenkins site — so not where I was supposed to be. Because I did this project a second time, I made sure to save my password when creating a new account.
 
-When I got into Jenkins, it prompted me for the user admin password that I could find in my EC2 (EC2 for Hosting Bank Application) at path: /var/lib/jenkins/secrets/initialAdminPassword. However, at first I couldn’t cd into that path because I didn’t have permission to enter the “secrets” directory. I found a workaround where I first cd’d into the root directory, and from there, ran a sudo cat command on the path: sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+When I got into Jenkins, it prompted me for the user admin password that I could find in my EC2 at path: /var/lib/jenkins/secrets/initialAdminPassword. However, at first I couldn’t cd into that path because I didn’t have permission to enter the “secrets” directory. I found a workaround where I first cd’d into the root directory, and from there, ran a sudo cat command on the path: sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 My instance:
 ![Screenshot 2024-08-01 000028](https://github.com/user-attachments/assets/20781f1a-8768-44a0-9d46-90dbad5f7db6)
 
 The first time around while creating my multi-branch pipeline, I also received this crumb error because I didn’t enter a name into the ‘Display Name’ field.
-
+Error:
 ![image](https://github.com/user-attachments/assets/c41589cb-f21c-4752-9a03-d3a17dc1c50e)
 
 ### Elastic Beanstalk:
@@ -126,7 +124,7 @@ Received 502 Bad Gateway nginx error when trying to connect to my online bank ap
 
 ![image](https://github.com/user-attachments/assets/679f27ec-1ba0-4670-bfaf-2880c0c202b0)
 
-Looked this error up and found that it means my proxy nginx could not get a proper response from the upstream server. Then from my classmates I learned that we should take a look at our logs. At first, I thought to look in my Beanstalk instance for the logs, but I couldn't locate them. Then I learned I could find them in the 'Log' tab on the Elastic Beanstalk environment page.
+Looked this error up and found that it means my proxy nginx could not get a proper response from the upstream server. Then from my classmates I learned that we should take a look at our logs. At first, I thought to look in my Beanstalk instance for the logs, but I couldn't locate them. I think I also looked in my EC2 instance, but that was the wrong place to look. Then I learned I could find them in the 'Log' tab on the Elastic Beanstalk environment page.
 
 At first, I had trouble accessing my logs because nothing showed up in that 'Log' tab. Then I realized I had to navigate to the drop-down menu and press ‘last 100 lines’ and then the logs were available for download. I downloaded the logs and scanned the lines to try and understand what went wrong:
 
@@ -149,7 +147,7 @@ Going back to the logs, I kept scanning to where I kept seeing ‘ERROR’. I no
 Pattern of process starting, stopping, and then that error message showing: 
 ![image](https://github.com/user-attachments/assets/2243bdaa-58f2-46af-967a-83dcc904a8f0)
 
-The only place I remember seeing the word "application" was in the repository files for our application code and then Nicole provided a SUPER helpful hint in our slack chat about how zip files have to be configured (Thanks Nicole!).
+The only place I remember seeing the word "application" was in the repository files for our application code and then Nicole provided a SUPER helpful hint in our Slack chat about how zip files have to be configured (Thanks Nicole!).
 
 The issue was that I downloaded the zip file directly from GitHub which included a parent directory. The application couldn’t be deployed because the right files couldn’t be reached/read. 
 
@@ -159,7 +157,7 @@ I fixed this by rezipping only the application sub files together, excluding the
 ![image](https://github.com/user-attachments/assets/da4ec6f6-21fa-4e0a-b4a3-645c6c3a12f0)
 
 In our study room, I also learned from Jon where I could see my application files: /var/app/current
-Before I made the zip file changes, I could only see the parent directory ("Workload-1-Repo-main") when I ls'd within that path. After I reuploaded, I could see that all my application files were there instead so that was cool.
+Before I made the zip file changes, I could only see the parent directory ("Workload-1-Repo-main") when I ls'd within that path. After I reuploaded, I could see that all my application files were there instead, so that was cool.
 
 ![image](https://github.com/user-attachments/assets/75c6f560-a388-451b-9733-9218715d29ef)
 
@@ -181,6 +179,6 @@ What are other disadvantages of using elastic beanstalk or similar managed servi
 
 ## Conclusion
 
-I had a lot of fun doing this project. I noticed that working through documentation helps me understand my work better and that it’d probably be helpful to start documentation immediately as I start a project. Working on this workload alongside the RBAC activity helped me become more comfortable with writing commands and scripts in Bash, and also demonstrated how tough main branch + elective branch would be.
+I had a lot of fun doing this project. I noticed that working through documentation helps me understand my work better and that it’d probably be helpful to start documentation immediately as I start a project. Working on this workload alongside the RBAC activity helped me become more comfortable with writing commands and scripts in Bash, and also demonstrated how tough handling main branch + elective branch will be. I also feel closer to my classmates simply because of all the time we spent together in the study room stressing and working together. Thinking through things with each other really helped me complete this project. So big shoutout to Jordan, Jon, Kaia, Ke and Jeremy!!
 
 ----------------------------------------------------------------
