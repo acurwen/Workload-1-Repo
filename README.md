@@ -2,7 +2,6 @@
 
 The purpose of this workload was to deploy a bank application using Elastic Beanstalk. I completed this workload twice and on the second round, improved my understanding of what these steps do and mean. I also worked with many classmates on troubleshooting the 502 error and testing our knowledge about application deployment using Elastic Beanstalk environments.
 
-*****Need to rename GitHub repo to something more descriptive**
 
 ## Steps Taken & Why
 
@@ -76,21 +75,29 @@ Did the build stages successfully complete? If not, why? How did you resolve the
 
 1. **Created Environment in Elastic Beanstalk**
 
-We created this environment to host our banking application on.
+We created this environment to host our banking application on. I called it "Retail Banking"
 
 First, I created my “IAM” service roles: aws-elasticbeanstalk-service-role and Elastic-EC2. These roles help grant permissions that are needed for the environment to host and manage the bank application.
 
 I also added in my security group I created for my EC2 instance while creating this environment. The security group has rules that included SSH (Port 22), HTTP (Port 80) and Jenkins (Port 8080) which ensures the correct access is enforced for my environment.
 
+
+
 1. **Uploaded application zip file to environment and launched**
 
-I downloaded the contents of “[Workload-1-Repo](https://github.com/acurwen/Workload-1-Repo)” repository and rezipped the application files on my local machine’s file explorer to ensure there was no parent directory included. I then uploaded the edited zip file to my environment in AWS Elastic Beanstalk. Launch was a success!
+I downloaded the contents of “[Workload-1-Repo](https://github.com/acurwen/Workload-1-Repo)” repository and rezipped the application files on my local machine’s file explorer to ensure there was no parent directory included. I then uploaded the edited zip file to my environment in AWS Elastic Beanstalk and saved my environment. 
 
-*****Insert screenshot of successful launch**
+Received message that the evironment was successfully launched.
+![image](https://github.com/user-attachments/assets/f648a388-087d-4524-be20-6b2079cba70f)
+
+
+Launch was a success!
+![image](https://github.com/user-attachments/assets/e6ca1bea-6574-4e62-8857-88a91a097ad4)
+
 
 ## System Design Diagram
 
-### created in draw.io
+
 
 ## Issues & Troubleshooting
 
@@ -110,7 +117,7 @@ When trying to create the environment for the bank app, I got an error that mana
 
 Received 502 Bad Gateway nginx error when trying to connect to my online bank application.
 
-*****Insert screenshot of error**
+![image](https://github.com/user-attachments/assets/679f27ec-1ba0-4670-bfaf-2880c0c202b0)
 
 Looked this error up and found that it means my proxy nginx could not get a proper response from the upstream server. I looked at my logs via the  Elastic Beanstalk environment page.
 
@@ -118,19 +125,25 @@ However, I had trouble accessing my logs at first because nothing showed up in t
 
 I scanned my logs to understand what went wrong:
 
-At first I looked at the very last lines and thought it was a port issue since the logs stated that a connection was refused while connecting to upstream. I tried looking at the config files within my EC2 instance to see which ports were being listened to, and even created and added in new security group that added port 443 to the environment configurations, but that wasn’t the issue.
+At first I looked at the very last lines and thought it was a port issue since the logs stated that a connection was refused while connecting to upstream. 
+Last lines of code:
+![image](https://github.com/user-attachments/assets/7d55b21c-88a4-4011-b2fc-74643003dda5)
 
-Going back to the logs, I kept scanning to where I kept seeing ‘ERROR’. I noticed three process starting and stopping due to an error and they were all followed by the same line: 
+I tried looking at the config files within my EC2 instance to see which ports were being listened to, and even created and added in new security group that added port 443 to the environment configurations, but that wasn’t the issue.
 
-`ModuleNotFoundError: No module named 'application'`
+Going back to the logs, I kept scanning to where I kept seeing ‘ERROR’. I noticed three processes that would start and stop due to an error and they were all followed by the same line: `ModuleNotFoundError: No module named 'application'`
 
-*****Insert screenshot of logs**
+Pattern of process starting, stopping, then that error message: 
+![image](https://github.com/user-attachments/assets/2243bdaa-58f2-46af-967a-83dcc904a8f0)
 
 The only place I remember seeing application was in the repository for our application code and then Nicole provided a super helpful hint about how our upload files have to be configured.
 
 The issue was that I downloaded the zip file directly from GitHub which included a parent directory. The application couldn’t be deployed because the right files couldn’t be reached. I fixed it by rezipping only the application files together, excluding the parent folder. Then I reuploaded my edited zip file and the application ran successfully.
+![image](https://github.com/user-attachments/assets/da4ec6f6-21fa-4e0a-b4a3-645c6c3a12f0)
 
-*****Insert screenshot of  bank application**
+In our study room, I also learned from Jon where I could see my application files: /var/app/current
+Before I made the zip file changes, I could only see the parent directory ("Workload-1-Repo-main") show up in when I ls'd while in that path. After I reuploaded, I could see all my application files were there instead so that was cool.
+![Screenshot 2024-08-01 014210](https://github.com/user-attachments/assets/56cb6075-80c2-4106-aceb-161c8e4636dd)
 
 ## Optimization
 
